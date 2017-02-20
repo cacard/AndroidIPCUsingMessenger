@@ -4,7 +4,7 @@ package cacard.androidipcusingmessenger;
  * Created by cunqingli on 2017/2/16.
  */
 
-public class IPCConfig {
+public class Config {
 
     // 进程标识号
     public static final int MAIN_PROCESS = 0;

@@ -14,8 +14,17 @@ import java.util.Map;
 
 public class ServerProcessHandler extends Handler {
 
+    /**
+     * Client注册的Messenger集合
+     */
     private Map<Integer, Messenger> mClientMessengers = new HashMap<Integer, Messenger>();
 
+    /**
+     * 根据ProcessId获取其注册的Messenger
+     *
+     * @param processId
+     * @return
+     */
     public Messenger getRegisteredMessenger(int processId) {
         if (mClientMessengers != null) {
             return mClientMessengers.get(processId);
@@ -31,18 +40,18 @@ public class ServerProcessHandler extends Handler {
 
         // todo 当然，注册ClientMessenger也可以放到这里，每次操作都注册一次
         switch (msg.what) {
-            case IPCConfig.REGISGER_MESSENGER:
+            case Config.REGISGER_MESSENGER:
                 mClientMessengers.put(msg.arg1/* ProcessId */, msg.replyTo);
                 log("rcv msg. registerMessenger. processId=" + msg.arg1);
                 break;
-            case IPCConfig.UNREGISGER_MESSENGER:
+            case Config.UNREGISGER_MESSENGER:
                 mClientMessengers.remove(msg.arg1);
                 log("rcv msg. unregisterMessenger. processId=" + msg.arg1);
                 break;
-            case IPCConfig.MessageNowProcessActivityOnResume:
+            case Config.MessageNowProcessActivityOnResume:
                 log("rcv msg.MessageNowProcessActivityOnResume");
                 break;
-            case IPCConfig.MessageNowProcessActivityOnPause:
+            case Config.MessageNowProcessActivityOnPause:
                 log("rcv msg.MessageNowProcessActivityOnPause");
                 // 还可以回复消息
                 Messenger reply = msg.replyTo;

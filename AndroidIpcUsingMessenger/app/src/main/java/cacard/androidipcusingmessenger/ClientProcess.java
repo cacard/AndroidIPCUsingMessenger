@@ -45,7 +45,7 @@ public class ClientProcess {
             dump("onServiceDisconnected() componentName:" + name);
             isBind = false;
 
-            // reconnect
+            // 断开连接后，尝试重新bind
             if (autoConnect) {
                 dump("will reconnect...");
                 startBind(mApp, true);
@@ -61,6 +61,12 @@ public class ClientProcess {
         return Holder.sInstance;
     }
 
+    /**
+     * 开始向Server发动绑定
+     *
+     * @param app
+     * @param autoReConnect
+     */
     public void startBind(Application app, boolean autoReConnect) {
         dump("startBind()");
         mApp = app;
@@ -70,18 +76,42 @@ public class ClientProcess {
 
     }
 
+    /**
+     * 绑定完毕。
+     * 1，可以立刻向Server发送一个“注册Messeneger”的消息；
+     */
     private void afterBind() {
         dump("afterBind()");
+
+        // 向Server注册Messenger
         registerToServer();
 
     }
 
-    public boolean isReady() {
-        return isBind && mMessengerServer != null;
+    /**
+     * 向Server注册自己的Messenger
+     */
+    public void registerToServer() {
+        dump("->registerToServer()");
+
+        if (!isBind || mMessengerServer == null) {
+            dump("registerToServer(), !bind or messengerServer is null.");
+            return;
+        }
+
+        Message msg = Message.obtain();
+        msg.what = Config.REGISGER_MESSENGER;
+        msg.arg1 = Config.NOW_PROCESS;
+        msg.replyTo = mMessengerClient;
+        try {
+            mMessengerServer.send(msg);
+        } catch (RemoteException e) {
+            dump("registerToServer(), error when send msg:" + e.getMessage());
+        }
     }
 
     /**
-     * 向Server进程发送消息。前提是已经绑定完成了。
+     * 向Server进程发送消息。前提是已经绑定完成。
      *
      * @param data
      */
@@ -99,28 +129,6 @@ public class ClientProcess {
         message.replyTo = mMessengerClient;
         try {
             mMessengerServer.send(message);
-        } catch (RemoteException e) {
-            dump("registerToServer(), error when send msg:" + e.getMessage());
-        }
-    }
-
-    /**
-     * 向Server注册自己的Messenger
-     */
-    public void registerToServer() {
-        dump("->registerToServer()");
-
-        if (!isBind || mMessengerServer == null) {
-            dump("registerToServer(), !bind or messengerServer is null.");
-            return;
-        }
-
-        Message msg = Message.obtain();
-        msg.what = IPCConfig.REGISGER_MESSENGER;
-        msg.arg1 = IPCConfig.NOW_PROCESS;
-        msg.replyTo = mMessengerClient;
-        try {
-            mMessengerServer.send(msg);
         } catch (RemoteException e) {
             dump("registerToServer(), error when send msg:" + e.getMessage());
         }
