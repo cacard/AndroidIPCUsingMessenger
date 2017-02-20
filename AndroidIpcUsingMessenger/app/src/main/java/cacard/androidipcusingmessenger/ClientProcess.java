@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -138,6 +139,26 @@ public class ClientProcess {
         autoConnect = false;
         if (mApp != null && mServiceConnection != null) {
             mApp.unbindService(mServiceConnection);
+        }
+    }
+
+    /**
+     * 消息处理
+     */
+    private static class ClientHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg == null) {
+                return;
+            }
+
+            switch (msg.what) {
+                case 0:
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+
         }
     }
 
